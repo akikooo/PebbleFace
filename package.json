@@ -1,0 +1,33 @@
+{
+    "author": "greenpurslane+pbbl@gmail.com",
+    "dependencies": {},
+    "keywords": [],
+    "name": "sayagen",
+    "pebble": {
+        "displayName": "SimpleAnalogYagen",
+        "enableMultiJS": true,
+        "messageKeys": [],
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "file": "images/bg.png",
+                    "name": "IMAGE_BG",
+                    "targetPlatforms": [
+                        "chalk"
+                    ],
+                    "type": "png"
+                }
+            ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "chalk"
+        ],
+        "uuid": "5456fc1e-4042-4622-9352-1cba7ff9efec",
+        "watchapp": {
+            "watchface": true
+        }
+    },
+    "version": "1.0.0"
+}

@@ -34,23 +34,23 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
 
   // 0,3,6,9時のマーカー
   // マーカー色
-//  graphics_context_set_fill_color(ctx, GColorPurple);
-//  graphics_fill_circle(ctx, GPoint(175 - 1,  90), 3);
-//  graphics_fill_circle(ctx, GPoint( 90, 175 - 1), 3);
-//  graphics_fill_circle(ctx, GPoint(  5,  90), 3);
-//  graphics_fill_circle(ctx, GPoint( 90,   5), 3);
+  graphics_context_set_fill_color(ctx, GColorRichBrilliantLavender);
+  graphics_fill_circle(ctx, GPoint(175 - 1,  90), 3);
+  graphics_fill_circle(ctx, GPoint( 90, 175 - 1), 3);
+  graphics_fill_circle(ctx, GPoint(  5,  90), 3);
+  graphics_fill_circle(ctx, GPoint( 90,   5), 3);
 
   // 0,3,6,9時以外のマーカー
   // マーカー色
-  graphics_context_set_fill_color(ctx, GColorRichBrilliantLavender);
-  graphics_fill_circle(ctx, GPoint( 164 - 1, 133 - 1), 1);
-  graphics_fill_circle(ctx, GPoint( 133 - 1, 164 - 1), 1);
-  graphics_fill_circle(ctx, GPoint(  48 - 1, 164 - 1), 1);
-  graphics_fill_circle(ctx, GPoint(  16 - 1, 133 - 1), 1);
-  graphics_fill_circle(ctx, GPoint(  16 - 1,  48 - 1), 1);
-  graphics_fill_circle(ctx, GPoint(  48 - 1,  16 - 1), 1);
-  graphics_fill_circle(ctx, GPoint( 133 - 1,  16 - 1), 1);
-  graphics_fill_circle(ctx, GPoint( 164 - 1,  48 - 1), 1);
+  graphics_context_set_fill_color(ctx, GColorWhite);
+  graphics_fill_circle(ctx, GPoint( 164 - 1, 133 - 1), 2);
+  graphics_fill_circle(ctx, GPoint( 133 - 1, 164 - 1), 2);
+  graphics_fill_circle(ctx, GPoint(  48 - 1, 164 - 1), 2);
+  graphics_fill_circle(ctx, GPoint(  16 - 1, 133 - 1), 2);
+  graphics_fill_circle(ctx, GPoint(  16 - 1,  48 - 1), 2);
+  graphics_fill_circle(ctx, GPoint(  48 - 1,  16 - 1), 2);
+  graphics_fill_circle(ctx, GPoint( 133 - 1,  16 - 1), 2);
+  graphics_fill_circle(ctx, GPoint( 164 - 1,  48 - 1), 2);
   
 // 元のマーカー描画削除  
 //  graphics_context_set_fill_color(ctx, GColorWhite);
@@ -63,7 +63,7 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
 // 時刻針の更新
 static void hands_update_proc(Layer *layer, GContext *ctx) {
   GRect bounds = layer_get_bounds(layer);
-  GPoint center = grect_center_point(&bounds);
+//  GPoint center = grect_center_point(&bounds);
   // 秒針の長さ
 //  int16_t second_hand_length = bounds.size.w / 2;
 
@@ -81,14 +81,16 @@ static void hands_update_proc(Layer *layer, GContext *ctx) {
 //  graphics_context_set_stroke_color(ctx, GColorWhite);
 //  graphics_draw_line(ctx, second_hand, center);
 
-  // minute/hour hand
-  graphics_context_set_fill_color(ctx, GColorWhite);
-//  graphics_context_set_stroke_color(ctx, GColorImperialPurple);
-
+  // minute hand
+  graphics_context_set_fill_color(ctx, GColorRichBrilliantLavender);
+  graphics_context_set_stroke_color(ctx, GColorRichBrilliantLavender);
   gpath_rotate_to(s_minute_arrow, TRIG_MAX_ANGLE * t->tm_min / 60);
   gpath_draw_filled(ctx, s_minute_arrow);
   gpath_draw_outline(ctx, s_minute_arrow);
 
+  // hour hand
+  graphics_context_set_fill_color(ctx, GColorWhite);
+  graphics_context_set_stroke_color(ctx, GColorWhite);
   gpath_rotate_to(s_hour_arrow, (TRIG_MAX_ANGLE * (((t->tm_hour % 12) * 6) + (t->tm_min / 10))) / (12 * 6));
   gpath_draw_filled(ctx, s_hour_arrow);
   gpath_draw_outline(ctx, s_hour_arrow);

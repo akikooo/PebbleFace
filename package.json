@@ -2,7 +2,7 @@
     "author": "greenpurslane+pbbl@gmail.com",
     "dependencies": {},
     "keywords": [],
-    "name": "sayagen",
+    "name": "analog_yagen",
     "pebble": {
         "displayName": "SimpleAnalogYagen",
         "enableMultiJS": true,
@@ -24,7 +24,7 @@
         "targetPlatforms": [
             "chalk"
         ],
-        "uuid": "5456fc1e-4042-4622-9352-1cba7ff9efec",
+        "uuid": "f7240ff8-54a0-49e1-895a-3af585a73a4a",
         "watchapp": {
             "watchface": true
         }

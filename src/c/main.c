@@ -70,7 +70,7 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
 // 時刻針の更新
 static void hands_update_proc(Layer *layer, GContext *ctx) {
   GRect bounds = layer_get_bounds(layer);
-//  GPoint center = grect_center_point(&bounds);
+  GPoint center = grect_center_point(&bounds);
   // 秒針の長さ
 //  int16_t second_hand_length = bounds.size.w / 2;
 
@@ -90,21 +90,25 @@ static void hands_update_proc(Layer *layer, GContext *ctx) {
 
   // minute hand
   graphics_context_set_fill_color(ctx, MINUTE_HAND_COLOR);
-  graphics_context_set_stroke_color(ctx, MINUTE_HAND_COLOR);
+//  graphics_context_set_stroke_color(ctx, MINUTE_HAND_COLOR);
   gpath_rotate_to(s_minute_arrow, TRIG_MAX_ANGLE * t->tm_min / 60);
   gpath_draw_filled(ctx, s_minute_arrow);
-  gpath_draw_outline(ctx, s_minute_arrow);
+//  gpath_draw_outline(ctx, s_minute_arrow);
 
   // hour hand
   graphics_context_set_fill_color(ctx, HOUR_HAND_COLOR);
-  graphics_context_set_stroke_color(ctx, HOUR_HAND_COLOR);
+//  graphics_context_set_stroke_color(ctx, HOUR_HAND_COLOR);
   gpath_rotate_to(s_hour_arrow, (TRIG_MAX_ANGLE * (((t->tm_hour % 12) * 6) + (t->tm_min / 10))) / (12 * 6));
   gpath_draw_filled(ctx, s_hour_arrow);
-  gpath_draw_outline(ctx, s_hour_arrow);
+//  gpath_draw_outline(ctx, s_hour_arrow);
 
   // dot in the middle
-  graphics_context_set_fill_color(ctx, GColorBlack);
-  graphics_fill_rect(ctx, GRect(bounds.size.w / 2 - 1, bounds.size.h / 2 - 1, 3, 3), 0, GCornerNone);
+  graphics_context_set_stroke_color(ctx, GColorWhite);
+  graphics_context_set_stroke_width(ctx, 2);
+  graphics_draw_circle(ctx, center, 3);
+  // ■の点を削除(11/29)
+//  graphics_context_set_fill_color(ctx, GColorBlack);
+//  graphics_fill_rect(ctx, GRect(bounds.size.w / 2 - 1, bounds.size.h / 2 - 1, 3, 3), 0, GCornerNone);
 //  graphics_fill_rect(ctx, GRect(90, 45, 3, 3), 0, GCornerNone);
 }
 

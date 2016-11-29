@@ -1,10 +1,10 @@
 {
-    "author": "greenpurslane+pbbl@gmail.com",
+    "author": "qp",
     "dependencies": {},
     "keywords": [],
     "name": "analog_yagen",
     "pebble": {
-        "displayName": "SimpleAnalogYagen",
+        "displayName": "SimpleAnalog_Yagen",
         "enableMultiJS": true,
         "messageKeys": [],
         "projectType": "native",

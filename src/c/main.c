@@ -1,5 +1,4 @@
 #include "main.h"
-
 #include "pebble.h"
 
 static Window *window;
@@ -26,31 +25,39 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
   //graphics_context_set_fill_color(ctx, GColorBlack);
   //graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
   //円を描く
-   //太さ10
+  //太さ10
 //  graphics_context_set_stroke_width(ctx,2);
   //色：赤 GColorRed
 //  graphics_context_set_stroke_color(ctx, GColorRed);
 //  graphics_draw_circle(ctx, GPoint(175 - 1,  90 - 1), 3);
 
   // 0,3,6,9時のマーカー
-  // マーカー色
-  graphics_context_set_fill_color(ctx, GColorRichBrilliantLavender);
-  graphics_fill_circle(ctx, GPoint(175 - 1,  90), 3);
-  graphics_fill_circle(ctx, GPoint( 90, 175 - 1), 3);
-  graphics_fill_circle(ctx, GPoint(  5,  90), 3);
-  graphics_fill_circle(ctx, GPoint( 90,   5), 3);
+  // pattern_1: 棒状  
+  graphics_context_set_stroke_width(ctx,MARKER_MAIN_SIZE);
+  graphics_context_set_stroke_color(ctx, MARKER_MAIN_COLOR);
+  graphics_draw_line(ctx, GPoint( 90, 10), GPoint( 90,  0));
+  graphics_draw_line(ctx, GPoint(170, 90), GPoint(180, 90));
+  graphics_draw_line(ctx, GPoint( 90,170), GPoint( 90,180));
+  graphics_draw_line(ctx, GPoint( 10, 90), GPoint(  0, 90));
+
+  // pattern_2: 丸
+//  graphics_context_set_fill_color(ctx, GColorRichBrilliantLavender);
+//  graphics_fill_circle(ctx, GPoint(175 - 1,  90), 3);
+//  graphics_fill_circle(ctx, GPoint( 90, 175 - 1), 3);
+//  graphics_fill_circle(ctx, GPoint(  5,  90), 3);
+//  graphics_fill_circle(ctx, GPoint( 90,   5), 3);
 
   // 0,3,6,9時以外のマーカー
   // マーカー色
-  graphics_context_set_fill_color(ctx, GColorWhite);
-  graphics_fill_circle(ctx, GPoint( 164 - 1, 133 - 1), 2);
-  graphics_fill_circle(ctx, GPoint( 133 - 1, 164 - 1), 2);
-  graphics_fill_circle(ctx, GPoint(  48 - 1, 164 - 1), 2);
-  graphics_fill_circle(ctx, GPoint(  16 - 1, 133 - 1), 2);
-  graphics_fill_circle(ctx, GPoint(  16 - 1,  48 - 1), 2);
-  graphics_fill_circle(ctx, GPoint(  48 - 1,  16 - 1), 2);
-  graphics_fill_circle(ctx, GPoint( 133 - 1,  16 - 1), 2);
-  graphics_fill_circle(ctx, GPoint( 164 - 1,  48 - 1), 2);
+  graphics_context_set_fill_color(ctx, MARKER_SUB_COLOR);
+  graphics_fill_circle(ctx, GPoint( 164 - 1, 133 - 1), MARKER_SUB_SIZE);
+  graphics_fill_circle(ctx, GPoint( 133 - 1, 164 - 1), MARKER_SUB_SIZE);
+  graphics_fill_circle(ctx, GPoint(  48 - 1, 164 - 1), MARKER_SUB_SIZE);
+  graphics_fill_circle(ctx, GPoint(  16 - 1, 133 - 1), MARKER_SUB_SIZE);
+  graphics_fill_circle(ctx, GPoint(  16 - 1,  48 - 1), MARKER_SUB_SIZE);
+  graphics_fill_circle(ctx, GPoint(  48 - 1,  16 - 1), MARKER_SUB_SIZE);
+  graphics_fill_circle(ctx, GPoint( 133 - 1,  16 - 1), MARKER_SUB_SIZE);
+  graphics_fill_circle(ctx, GPoint( 164 - 1,  48 - 1), MARKER_SUB_SIZE);
   
 // 元のマーカー描画削除  
 //  graphics_context_set_fill_color(ctx, GColorWhite);
@@ -82,15 +89,15 @@ static void hands_update_proc(Layer *layer, GContext *ctx) {
 //  graphics_draw_line(ctx, second_hand, center);
 
   // minute hand
-  graphics_context_set_fill_color(ctx, GColorRichBrilliantLavender);
-  graphics_context_set_stroke_color(ctx, GColorRichBrilliantLavender);
+  graphics_context_set_fill_color(ctx, MINUTE_HAND_COLOR);
+  graphics_context_set_stroke_color(ctx, MINUTE_HAND_COLOR);
   gpath_rotate_to(s_minute_arrow, TRIG_MAX_ANGLE * t->tm_min / 60);
   gpath_draw_filled(ctx, s_minute_arrow);
   gpath_draw_outline(ctx, s_minute_arrow);
 
   // hour hand
-  graphics_context_set_fill_color(ctx, GColorWhite);
-  graphics_context_set_stroke_color(ctx, GColorWhite);
+  graphics_context_set_fill_color(ctx, HOUR_HAND_COLOR);
+  graphics_context_set_stroke_color(ctx, HOUR_HAND_COLOR);
   gpath_rotate_to(s_hour_arrow, (TRIG_MAX_ANGLE * (((t->tm_hour % 12) * 6) + (t->tm_min / 10))) / (12 * 6));
   gpath_draw_filled(ctx, s_hour_arrow);
   gpath_draw_outline(ctx, s_hour_arrow);

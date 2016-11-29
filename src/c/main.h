@@ -4,6 +4,18 @@
 
 #define NUM_CLOCK_TICKS 11
 
+// 時針、分針
+#define HOUR_HAND_COLOR GColorWhite
+#define MINUTE_HAND_COLOR GColorRichBrilliantLavender
+
+// 0,3,6,9時刻マーカー
+#define MARKER_MAIN_COLOR GColorRichBrilliantLavender
+#define MARKER_MAIN_SIZE 2
+
+// 0,3,6,9以外の時刻マーカー
+#define MARKER_SUB_COLOR GColorWhite
+#define MARKER_SUB_SIZE 1
+
 static const struct GPathInfo ANALOG_BG_POINTS[] = {
   { 4, (GPoint []){
       {85, 0},

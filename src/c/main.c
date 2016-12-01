@@ -21,10 +21,11 @@ static GPath *s_minute_arrow, *s_hour_arrow, *s_marker_0;
 // 日付表示
 // static char s_num_buffer[4], s_day_buffer[6];
 
-//Bluetoothステータス(11/30)
+// Bluetoothステータス(11/30)
 static char bt_status[4] = "BT";
-//過去のBluetoothステータス
+// 過去のBluetoothステータス
 static int bt_st_old = 1;
+static bool bt_connection_old;
 
 static void bg_update_proc(Layer *layer, GContext *ctx) {
   // 背景画像使用のため背景色削除
@@ -129,21 +130,23 @@ static void hands_update_proc(Layer *layer, GContext *ctx) {
 //  graphics_fill_rect(ctx, GRect(90, 45, 3, 3), 0, GCornerNone);
 }
 
-//Bluetoothハンドラ
+// Bluetoothハンドラ
 static void handle_bluetooth(bool connected) {
   if (connected) {
       //接続に変化したらバイブ
-      if(bt_st_old == 0)
+      if(!bt_connection_old){
          vibes_short_pulse();
-      bt_st_old = 1;
+         bt_connection_old = true;
+      };
       snprintf(bt_status,4,"BT");
       // bitmap_layer に画像を設定
       bitmap_layer_set_bitmap(bitmap_layer, bitmap);
    } else {
       //切断に変化したらバイブ
-      if(bt_st_old == 1)
+      if(bt_connection_old){
          vibes_short_pulse();
-      bt_st_old = 0;
+         bt_connection_old = false;
+      };
       snprintf(bt_status,4,"--");
       // bitmap_layer に画像を設定
       bitmap_layer_set_bitmap(bitmap_layer, bitmap_BToff);
@@ -175,6 +178,7 @@ static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
 static void window_load(Window *window) {
   window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
+  bt_connection_old = connection_service_peek_pebble_app_connection();
 
   s_simple_bg_layer = layer_create(bounds);
   s_hands_layer = layer_create(bounds);
@@ -185,7 +189,7 @@ static void window_load(Window *window) {
   // bitmap_layer を作成
   bitmap_layer = bitmap_layer_create(layer_get_bounds(window_layer));
 
-  handle_bluetooth(connection_service_peek_pebble_app_connection());
+  handle_bluetooth(bt_connection_old);
   
 //  if (bt_st_old == 1){
     // bitmap_layer に画像を設定

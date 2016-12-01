@@ -7,18 +7,24 @@ static Window *window;
 // bk
 //static Layer *s_simple_bg_layer, *s_date_layer, *s_hands_layer;
 //static TextLayer *s_day_label, *s_num_label;
+static Layer *window_layer;
 static Layer *s_simple_bg_layer, *s_hands_layer;
 static TextLayer *s_num_label;
 
 // 背景画像レイヤー(11/3)
 static BitmapLayer *bitmap_layer;
-static GBitmap *bitmap;
+static GBitmap *bitmap, *bitmap_BToff;
 
 // 元の時刻マーカーパス削除
 //static GPath *s_tick_paths[NUM_CLOCK_TICKS];
-static GPath *s_minute_arrow, *s_hour_arrow;
+static GPath *s_minute_arrow, *s_hour_arrow, *s_marker_0;
 // 日付表示
 // static char s_num_buffer[4], s_day_buffer[6];
+
+//Bluetoothステータス(11/30)
+static char bt_status[4] = "BT";
+//過去のBluetoothステータス
+static int bt_st_old = 1;
 
 static void bg_update_proc(Layer *layer, GContext *ctx) {
   // 背景画像使用のため背景色削除
@@ -34,8 +40,10 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
   // 0,3,6,9時のマーカー
   // pattern_1: 棒状  
   graphics_context_set_stroke_width(ctx,MARKER_MAIN_SIZE);
-  graphics_context_set_stroke_color(ctx, MARKER_MAIN_COLOR);
-  graphics_draw_line(ctx, GPoint( 90, 10), GPoint( 90,  0));
+  graphics_context_set_stroke_color(ctx, MARKER_MAIN_COLOR); 
+  graphics_context_set_fill_color(ctx,MARKER_MAIN_COLOR);
+  gpath_draw_filled(ctx, s_marker_0);
+//  graphics_draw_line(ctx, GPoint( 90, 10), GPoint( 90,  0)); // 0時
   graphics_draw_line(ctx, GPoint(170, 90), GPoint(180, 90));
   graphics_draw_line(ctx, GPoint( 90,170), GPoint( 90,180));
   graphics_draw_line(ctx, GPoint( 10, 90), GPoint(  0, 90));
@@ -50,14 +58,23 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
   // 0,3,6,9時以外のマーカー
   // マーカー色
   graphics_context_set_fill_color(ctx, MARKER_SUB_COLOR);
-  graphics_fill_circle(ctx, GPoint( 164 - 1, 133 - 1), MARKER_SUB_SIZE);
-  graphics_fill_circle(ctx, GPoint( 133 - 1, 164 - 1), MARKER_SUB_SIZE);
-  graphics_fill_circle(ctx, GPoint(  48 - 1, 164 - 1), MARKER_SUB_SIZE);
-  graphics_fill_circle(ctx, GPoint(  16 - 1, 133 - 1), MARKER_SUB_SIZE);
-  graphics_fill_circle(ctx, GPoint(  16 - 1,  48 - 1), MARKER_SUB_SIZE);
-  graphics_fill_circle(ctx, GPoint(  48 - 1,  16 - 1), MARKER_SUB_SIZE);
-  graphics_fill_circle(ctx, GPoint( 133 - 1,  16 - 1), MARKER_SUB_SIZE);
-  graphics_fill_circle(ctx, GPoint( 164 - 1,  48 - 1), MARKER_SUB_SIZE);
+  graphics_fill_circle(ctx, GPoint( 159, 130), MARKER_SUB_SIZE);
+  graphics_fill_circle(ctx, GPoint( 130, 159), MARKER_SUB_SIZE);
+  graphics_fill_circle(ctx, GPoint(  50, 159), MARKER_SUB_SIZE);
+  graphics_fill_circle(ctx, GPoint(  21, 130), MARKER_SUB_SIZE);
+  graphics_fill_circle(ctx, GPoint(  21,  50), MARKER_SUB_SIZE);
+  graphics_fill_circle(ctx, GPoint(  50,  21), MARKER_SUB_SIZE);
+  graphics_fill_circle(ctx, GPoint( 130,  21), MARKER_SUB_SIZE);
+  graphics_fill_circle(ctx, GPoint( 159,  50), MARKER_SUB_SIZE);
+
+//  graphics_fill_circle(ctx, GPoint( 166, 134), MARKER_SUB_SIZE);
+//  graphics_fill_circle(ctx, GPoint( 134, 166), MARKER_SUB_SIZE);
+//  graphics_fill_circle(ctx, GPoint(  46, 166), MARKER_SUB_SIZE);
+//  graphics_fill_circle(ctx, GPoint(  14, 134), MARKER_SUB_SIZE);
+//  graphics_fill_circle(ctx, GPoint(  14,  46), MARKER_SUB_SIZE);
+//  graphics_fill_circle(ctx, GPoint(  46,  14), MARKER_SUB_SIZE);
+//  graphics_fill_circle(ctx, GPoint( 134,  14), MARKER_SUB_SIZE);
+//  graphics_fill_circle(ctx, GPoint( 166,  46), MARKER_SUB_SIZE);
   
 // 元のマーカー描画削除  
 //  graphics_context_set_fill_color(ctx, GColorWhite);
@@ -112,6 +129,33 @@ static void hands_update_proc(Layer *layer, GContext *ctx) {
 //  graphics_fill_rect(ctx, GRect(90, 45, 3, 3), 0, GCornerNone);
 }
 
+//Bluetoothハンドラ
+static void handle_bluetooth(bool connected) {
+  if (connected) {
+      //接続に変化したらバイブ
+      if(bt_st_old == 0)
+         vibes_short_pulse();
+      bt_st_old = 1;
+      snprintf(bt_status,4,"BT");
+      // bitmap_layer に画像を設定
+      bitmap_layer_set_bitmap(bitmap_layer, bitmap);
+   } else {
+      //切断に変化したらバイブ
+      if(bt_st_old == 1)
+         vibes_short_pulse();
+      bt_st_old = 0;
+      snprintf(bt_status,4,"--");
+      // bitmap_layer に画像を設定
+      bitmap_layer_set_bitmap(bitmap_layer, bitmap_BToff);
+  }
+  // bitmap_layer を root_layer に重ねる
+  layer_add_child(window_layer, bitmap_layer_get_layer(bitmap_layer));
+  layer_set_update_proc(s_simple_bg_layer, bg_update_proc);
+  layer_add_child(window_layer, s_simple_bg_layer);
+  layer_set_update_proc(s_hands_layer, hands_update_proc);
+  layer_add_child(window_layer, s_hands_layer);
+}
+
 // 日付更新
 //static void date_update_proc(Layer *layer, GContext *ctx) {
 //  time_t now = time(NULL);
@@ -129,45 +173,27 @@ static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
 }
 
 static void window_load(Window *window) {
-  Layer *window_layer = window_get_root_layer(window);
+  window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
+
+  s_simple_bg_layer = layer_create(bounds);
+  s_hands_layer = layer_create(bounds);
 
   // リソース "IMAGE_BG" から画像を生成
   bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG);
+  bitmap_BToff = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BG2);
   // bitmap_layer を作成
   bitmap_layer = bitmap_layer_create(layer_get_bounds(window_layer));
-  // bitmap_layer に画像を設定
-  bitmap_layer_set_bitmap(bitmap_layer, bitmap);
-  // bitmap_layer を root_layer に重ねる
-  layer_add_child(window_layer, bitmap_layer_get_layer(bitmap_layer));
 
-  s_simple_bg_layer = layer_create(bounds);
-  layer_set_update_proc(s_simple_bg_layer, bg_update_proc);
-  layer_add_child(window_layer, s_simple_bg_layer);
-
-//  s_date_layer = layer_create(bounds);
-//  layer_set_update_proc(s_date_layer, date_update_proc);
-//  layer_add_child(window_layer, s_date_layer);
-
-//  s_day_label = text_layer_create(GRect(46, 114, 27, 20));
-//  text_layer_set_text(s_day_label, s_day_buffer);
-//  text_layer_set_background_color(s_day_label, GColorBlack);
-//  text_layer_set_text_color(s_day_label, GColorWhite);
-//  text_layer_set_font(s_day_label, fonts_get_system_font(FONT_KEY_GOTHIC_18));
-
-//  layer_add_child(s_date_layer, text_layer_get_layer(s_day_label));
-
-//  s_num_label = text_layer_create(GRect(73, 114, 18, 20));
-//  text_layer_set_text(s_num_label, s_num_buffer);
-//  text_layer_set_background_color(s_num_label, GColorBlack);
-//  text_layer_set_text_color(s_num_label, GColorWhite);
-//  text_layer_set_font(s_num_label, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-
-//  layer_add_child(s_date_layer, text_layer_get_layer(s_num_label));
-
-  s_hands_layer = layer_create(bounds);
-  layer_set_update_proc(s_hands_layer, hands_update_proc);
-  layer_add_child(window_layer, s_hands_layer);
+  handle_bluetooth(connection_service_peek_pebble_app_connection());
+  
+//  if (bt_st_old == 1){
+    // bitmap_layer に画像を設定
+//    bitmap_layer_set_bitmap(bitmap_layer, bitmap);
+//  } else {
+    // bitmap_layer に画像を設定
+//    bitmap_layer_set_bitmap(bitmap_layer, bitmap_BToff);
+//  };
 }
 
 static void window_unload(Window *window) {
@@ -195,7 +221,7 @@ static void init() {
   s_minute_arrow = gpath_create(&MINUTE_HAND_POINTS);
   s_hour_arrow = gpath_create(&HOUR_HAND_POINTS);
 
-  Layer *window_layer = window_get_root_layer(window);
+  window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
   GPoint center = grect_center_point(&bounds);
   gpath_move_to(s_minute_arrow, center);
@@ -205,9 +231,16 @@ static void init() {
 //    s_tick_paths[i] = gpath_create(&ANALOG_BG_POINTS[i]);
 //  }
 
+  s_marker_0 = gpath_create(&MARKER_0_POINTS);
+  
   // 更新を分単位にする(11/4)
 //  tick_timer_service_subscribe(SECOND_UNIT, handle_second_tick);
   tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
+  
+  // Bluetooth接続状態サービスに登録する(11/30)
+  connection_service_subscribe((ConnectionHandlers){
+    .pebble_app_connection_handler = handle_bluetooth
+  });
 }
 
 static void deinit() {
@@ -218,7 +251,11 @@ static void deinit() {
 //    gpath_destroy(s_tick_paths[i]);
 //  }
 
+  // マーカー
+  gpath_destroy(s_marker_0);
+
   tick_timer_service_unsubscribe();
+  connection_service_unsubscribe();
   window_destroy(window);
 }
 

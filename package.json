@@ -11,6 +11,14 @@
         "resources": {
             "media": [
                 {
+                    "file": "images/bg2.png",
+                    "name": "IMAGE_BG2",
+                    "targetPlatforms": [
+                        "chalk"
+                    ],
+                    "type": "png"
+                },
+                {
                     "file": "images/bg.png",
                     "name": "IMAGE_BG",
                     "targetPlatforms": [
